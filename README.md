@@ -32,5 +32,7 @@ CER (Character Error Rates) are then calculated on the test corpus of Indic TIMI
 ## The CER results
 The results on CER for the above test sets show more than 2% absolute performance gain as shown the plots.
 
+## Mixup Demo
+A notebook for a live recording demo for English as spoken by an user uses the mixup-model for transcriptions.
 
 
