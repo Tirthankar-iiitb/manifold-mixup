@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-# 23 Jan 2024
 # 
 
 import numpy as np
