@@ -64,10 +64,6 @@ class GreedyCTCDecoder(torch.nn.Module):
         joined = "".join([self.labels[i] for i in indices])
         return joined
 
-
-
-
-
 # ## define model
 
 class FCLayer(nn.Module):
@@ -263,32 +259,22 @@ refmodel="facebook/wav2vec2-large-960h"
 stage1Model_dir=f'{execdir}/models'
 
 print()
-spe_mix='100K'
-spe_nomix='10K'
-
-setup=f'new6b_new_{spe_mix}_{spe_nomix}'
 
 for MODELMIXUP in ['mix','nomix']:
-    if MODELMIXUP=='mix': continue
     print(f'--->> Traininng {setup}_{MODELMIXUP}')
     ctc_model=Mixup_CTC_Model(classes,featsize).to(device)
-    
-    if MODELMIXUP=='mix':
-        #model_stage1_HIN_nomix_new6b_new_100K_10K_best.pth
-        stage1modelpath=f'{stage1Model_dir}/model_stage1_HIN_{MODELMIXUP}_{setup}_best.pth'
-    else:
-        stage1modelpath=f'{stage1Model_dir}/model_stage1_HIN_{MODELMIXUP}_{setup}_best.pth'
+
+    stage1modelpath_mix=f'{mpath}/model_stage1_{TRAINED_LANG}_mix.pth'
+    stage1modelpath_nomix=f'{mpath}/model_stage1_{TRAINED_LANG}_nomix_best.pth'
+
+    stage1modelpath=stage1modelpath_mix if MODELMIXUP=='mix' else stage1modelpath_nomix
     
     ctc_model.mixup_model.load_state_dict(torch.load(stage1modelpath,map_location=device))
     
     lr=1e-3
     optimizer = Adam(ctc_model.parameters(), lr=lr)
-    
-    if MODELMIXUP=='mix':
-        ctc_model_desc=f'model_stage2_HIN_{MODELMIXUP}_new6b_new_{spe_mix}_{spe_nomix}'
-    else:
-        ctc_model_desc=f'model_stage2_HIN_{MODELMIXUP}_new6b_new_{spe_mix}_{spe_nomix}'
-    
+
+    ctc_model_desc=f'model_stage2_{MODELMIXUP}'
     ctc_modelpath=f'{modeldir}/{ctc_model_desc}.pth'
     csvfn=f'{execdir}/plots/loss_cer_{ctc_model_desc}.csv'
 

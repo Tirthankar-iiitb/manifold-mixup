@@ -18,8 +18,6 @@ import datetime
 
 from torch.utils.data import Dataset, DataLoader
 
-# In[2]:
-
 def gethms(secs):
     mm, ss = divmod(secs, 60)
     hh, mm= divmod(mm, 60)
@@ -28,10 +26,6 @@ def gethms(secs):
 def gethms_timedelta(td):
     secs=td.total_seconds()
     return gethms(secs)
-
-
-# In[3]:
-
 
 from dataloader_chars_indic_timit import Dataloader_chars_indic_timit
 from dataloader_chars_indic_timit import stackup_inputs, collate_wrapper
@@ -42,7 +36,7 @@ seed=25
 torch.manual_seed(seed)
 np.random.seed(seed)
 
-FEATSIZE=1024 #768 #1024  # 39
+FEATSIZE=1024
 
 TRAIN_LANG='HIN'
 
@@ -193,10 +187,6 @@ def train(epoch, train_history, forcenomix=20, lastmixtaps=1):
 
     return trn_loss, val_loss, val_acc, train_history
 
-
-# In[9]:
-
-
 def evaluate():  #epoch, history=None
     loss = []
     acc = []
@@ -235,12 +225,9 @@ print()
 spe_mix=100000
 spe_nomix=10000
 
-spemix=f'{spe_mix//1000}K'
-spenomix=f'{spe_nomix//1000}K'
-
 for TRAIN_MIX in ['mix','nomix']:
     if TRAIN_MIX=='mix': continue
-    msg=f'Stage1 {TRAIN_LANG}_{TRAIN_MIX}_new6b_new_{spemix}_{spenomix} training'
+    msg=f'Stage1 {TRAIN_LANG}_{TRAIN_MIX} training'
     print(f'{msg}...\n')
     k=25; batch_size=8
     samplingperepoc=spe_mix if TRAIN_MIX=='mix' else spe_nomix
@@ -281,7 +268,7 @@ for TRAIN_MIX in ['mix','nomix']:
     # define model
     
     mpath=f'{execdir}/models'
-    model_desc=f'model_stage1_{TRAIN_LANG}_{TRAIN_MIX}_new6b_new_{spemix}_{spenomix}'
+    model_desc=f'model_stage1_{TRAIN_LANG}_{TRAIN_MIX}'
     modelpath=f'{mpath}/{model_desc}.pth'
     best_modelpath=f'{modelpath[:-4]}_best.pth'
     chkp_modelpath=f'{modelpath[:-4]}_chkp.pth'
@@ -310,11 +297,9 @@ for TRAIN_MIX in ['mix','nomix']:
         print(f'\tEpoch {o_epochs+epoch+1} completed in time: {gethms_timedelta(epoch_end-epoch_start)}')
         if vacc > val_acc:
             val_acc=vacc
-            #bmpath=f'{best_modelpath[:-4]}_ep{o_epochs+epoch+1}.pth'
             bmpath=f'{best_modelpath}'
             torch.save(model.state_dict(), bmpath)
             bestepoch=o_epochs+epoch+1
-            #print(f'best model saved {bmpath}')
         if epoch != 0 and (o_epochs+epoch+1) % 10 == 0:
             ckmpath=f'{chkp_modelpath[:-4]}_ep{o_epochs+epoch+1}.pth'
             torch.save(model.state_dict(), ckmpath)
